@@ -23,9 +23,12 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
- $app->withFacades();
-
- $app->withEloquent();
+$app->withFacades();
+$app->withEloquent();
+$app->configure('auth');
+$app->configure('filesystems');
+$app->configure('cors');
+$app->configure('cache');
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +51,14 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton('filesystem', function ($app) {
+    return $app->loadComponent(
+        'filesystems',
+        Illuminate\Filesystem\FilesystemServiceProvider::class,
+        'filesystem'
+    );
+});
+
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -59,13 +70,16 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//    App\Http\Middleware\ExampleMiddleware::class
-// ]);
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
+    'helper' => \App\Http\Middleware\HelperMiddleware::class,
+]);
 
- $app->routeMiddleware([
-     'auth' => App\Http\Middleware\Authenticate::class,
- ]);
+$app->middleware([
+    \Barryvdh\Cors\HandleCors::class,
+    \App\Http\Middleware\Throttle::class
+//    \App\Http\Middleware\AddCORSHeader::class
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -78,11 +92,18 @@ $app->singleton(
 |
 */
 
- $app->register(App\Providers\AppServiceProvider::class);
- $app->register(App\Providers\AuthServiceProvider::class);
- $app->register(App\Providers\EventServiceProvider::class);
+$app->register(Appzcoder\LumenRoutesList\RoutesCommandServiceProvider::class);
 $app->register(Laravel\Passport\PassportServiceProvider::class);
 $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
+$app->register(\Barryvdh\Cors\LumenServiceProvider::class);
+
+if ($app->environment() != 'testing') {
+    $app->configure('gateway');
+    $app->register(App\Providers\AppServiceProvider::class);
+}
+
+//$app->register(App\Providers\AuthServiceProvider::class);
+// $app->register(App\Providers\EventServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
@@ -95,8 +116,8 @@ $app->register(Dusterio\LumenPassport\PassportServiceProvider::class);
 |
 */
 
-$app->group(['namespace' => 'App\Http\Controllers'], function ($app) {
-    require __DIR__.'/../routes/web.php';
+$app->group(['namespace' => 'App\Http\Controllers', 'middleware' => ['auth']], function ($app) {
+    require __DIR__.'/../app/Http/routes.php';
 });
 
 return $app;
