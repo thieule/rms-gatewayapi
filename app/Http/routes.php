@@ -15,6 +15,6 @@ $app->get('/', function () use ($app) {
     return $app->version();
 });
 
-$app->get('/me', ['middleware' => 'auth', function (\Illuminate\Http\Request $request) {
+$app->get('/auth-info', ['middleware' => 'auth', function (\Illuminate\Http\Request $request) {
     return json_encode($request->user());
 }]);

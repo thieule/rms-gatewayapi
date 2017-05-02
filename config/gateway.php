@@ -13,12 +13,26 @@ return (static function() {
             [
                 'aggregate' => true,
                 'method' => 'GET',
-                'path' => '/v1/notification/config',
+                'path' => 'notification/config',
                 'actions' => [
-                    'device' => [
+                    'my-config' => [
                         'service' => 'rms-notification',
                         'method' => 'GET',
-                        'path' => 'reset_password/aa',
+                        'path' => 'my-config',
+                        'sequence' => 0,
+                        'critical' => true
+                    ],
+                    'all-config' => [
+                        'service' => 'rms-notification',
+                        'method' => 'GET',
+                        'path' => 'resource/config',
+                        'sequence' => 0,
+                        'critical' => true
+                    ],
+                    'item-config' => [
+                        'service' => 'rms-notification',
+                        'method' => 'GET',
+                        'path' => 'resource/config/1',
                         'sequence' => 0,
                         'critical' => true
                     ]

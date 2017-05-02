@@ -63,6 +63,7 @@ class RestClient
             [
                 'X-User' => $request->user()->id ?? self::USER_ID_ANONYMOUS,
                 'X-Client-Ip' => $request->getClientIp(),
+                'Authorization' => $request->header('Authorization'),
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
             ]

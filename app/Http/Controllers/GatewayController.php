@@ -62,7 +62,7 @@ class GatewayController extends Controller
      * @return Response
      */
     public function get(Request $request, RestClient $client)
-    {echo 'sss';die;
+    {
         $parametersJar = array_merge($request->getRouteParams(), ['query_string' => $request->getQueryString()]);
         $output = $this->actions->reduce(function($carry, $batch) use (&$parametersJar, $client) {
             $responses = $client->asyncRequest($batch, $parametersJar);
